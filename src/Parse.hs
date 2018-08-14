@@ -21,6 +21,19 @@ satisfies f = do
     else do put newState
             return result
 
+sepBy :: Parser a -> Parser b -> Parser [a]
+sepBy parser sep = do
+  first <- parser
+  rest <- reverse <$> parseRest [] parser sep
+  return $ (first:rest)
+  where
+    parseRest :: [a] -> Parser a -> Parser b -> Parser [a]
+    parseRest acc parser sep =
+      (do sep
+          next <- parser
+          parseRest (next:acc) parser sep)
+      <|> return acc
+
 optional :: Parser a -> Parser ()
 optional parser = (parser >> return ()) <|> return ()
 
@@ -54,16 +67,22 @@ between (start, end) parser = do
 quoted :: Parser a -> Parser a
 quoted = between ('"', '"')
 
+quotedString :: Parser String
+quotedString = quoted $ satisfies (/= '"')
+
 parens :: Parser a -> Parser a
 parens = between ('(', ')')
 
-tuple :: Parser a -> Parser (a, a)
-tuple parser = parens $ do
-  a <- parser
+tuple :: Parser a -> Parser b -> Parser (a, b)
+tuple aParse bParse = parens $ do
+  a <- aParse
   comma
   optional whitespace
-  b <- parser
+  b <- bParse
   return (a, b)
+
+integerList :: Parser [Integer]
+integerList = integer `sepBy` (comma >> optional whitespace)
 
 -- helpers
 
