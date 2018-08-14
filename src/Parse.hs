@@ -2,7 +2,7 @@ module Parse where
 
 import Control.Monad.Trans.State (StateT, runStateT, get, put)
 import Control.Monad.Trans.Class (lift)
-import Control.Applicative ((<|>))
+import Control.Applicative ((<|>), empty)
 import qualified Data.Char as Char
 
 type ParseResult = Maybe
@@ -40,11 +40,11 @@ optional parser = (parser >> return ()) <|> return ()
 char :: Char -> Parser Char
 char c = do
   state <- get
-  (x, newState) <- lift $ destruct state
+  (x, newState) <- destruct state
   if x == c
     then do put newState
             return x
-    else lift Nothing
+    else noParse
 
 whitespace :: Parser ()
 whitespace = satisfies (flip elem ['\t', '\n', ' ']) >> return ()
@@ -86,9 +86,9 @@ integerList = integer `sepBy` (comma >> optional whitespace)
 
 -- helpers
 
-destruct :: [a] -> Maybe (a, [a])
-destruct [] = Nothing
-destruct (x:xs) = Just (x, xs)
+destruct :: [a] -> Parser (a, [a])
+destruct [] = noParse
+destruct (x:xs) = return (x, xs)
 
 noParse :: Parser a
-noParse = lift Nothing
+noParse = lift empty
