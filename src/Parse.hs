@@ -17,7 +17,7 @@ satisfies f = do
   state <- get
   let (result, newState) = span f state
   if null result
-    then lift Nothing
+    then noParse
     else do put newState
             return result
 
@@ -89,3 +89,6 @@ integerList = integer `sepBy` (comma >> optional whitespace)
 destruct :: [a] -> Maybe (a, [a])
 destruct [] = Nothing
 destruct (x:xs) = Just (x, xs)
+
+noParse :: Parser a
+noParse = lift Nothing
