@@ -25,7 +25,7 @@ sepBy :: Parser a -> Parser b -> Parser [a]
 sepBy parser sep = do
   first <- parser
   rest <- reverse <$> parseRest [] parser sep
-  return $ (first:rest)
+  return (first:rest)
   where
     parseRest :: [a] -> Parser a -> Parser b -> Parser [a]
     parseRest acc parser sep =
@@ -62,7 +62,7 @@ between (start, end) parser = do
   char start
   result <- parser
   char end
-  return $ result
+  return result
 
 quoted :: Parser a -> Parser a
 quoted = between ('"', '"')
