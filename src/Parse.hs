@@ -91,6 +91,9 @@ quotedString = quoted $ parseWhile (/= '"')
 parens :: Parser a -> Parser a
 parens = between ('(', ')')
 
+brackets :: Parser a -> Parser a
+brackets = between ('[', ']')
+
 tuple :: Parser a -> Parser b -> Parser (a, b)
 tuple aParse bParse = parens $ do
   a <- aParse
