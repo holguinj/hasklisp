@@ -23,7 +23,7 @@ listExp :: Parser Expression
 listExp = EList <$> (parens contents <|> brackets contents)
   where
     contents :: Parser [Expression]
-    contents = expression `sepBy` whitespace <|> return []
+    contents = expression `sepBy` lispWhitespace <|> return []
 
 expression :: Parser Expression
 expression = stringExp
@@ -31,9 +31,15 @@ expression = stringExp
          <|> symbolExp
          <|> listExp
 
+lispWhitespace :: Parser ()
+lispWhitespace = many (whitespace <|> comma) >> return ()
+
 example :: Expression
 example =
-  let testString = "(defn foo [] (println \"foo!\"))"
+  let testString = unlines [ "(defn foo []"
+                            , "  (println \"foo!\")"
+                            , "  (sum 1, 2, 3))"
+                            ]
       Just (res, _) = parse expression testString
   in
     res
