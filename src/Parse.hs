@@ -52,6 +52,15 @@ char c = do
             return x
     else noParse
 
+oneOf :: [Char] -> Parser Char
+oneOf chars = do
+  state <- get
+  (x, newState) <- destruct state
+  if x `elem` chars
+    then do put newState
+            return x
+    else noParse
+
 whitespace :: Parser ()
 whitespace = parseWhile (flip elem ['\t', '\n', ' ']) >> return ()
 
