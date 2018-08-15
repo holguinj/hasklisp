@@ -12,8 +12,8 @@ type Parser a = StateT String ParseResult a
 parse :: Parser a -> String -> Maybe (a, String)
 parse = runStateT
 
-satisfies :: (Char -> Bool) -> Parser String
-satisfies f = do
+parseWhile :: (Char -> Bool) -> Parser String
+parseWhile f = do
   state <- get
   let (result, newState) = span f state
   if null result
@@ -47,14 +47,14 @@ char c = do
     else noParse
 
 whitespace :: Parser ()
-whitespace = satisfies (flip elem ['\t', '\n', ' ']) >> return ()
+whitespace = parseWhile (flip elem ['\t', '\n', ' ']) >> return ()
 
 comma :: Parser ()
 comma = char ',' >> return ()
 
 integer :: Parser Integer
 integer = do
-  numString <- satisfies Char.isDigit
+  numString <- parseWhile Char.isDigit
   return $ read numString
 
 between :: (Char, Char) -> Parser a -> Parser a
@@ -68,7 +68,7 @@ quoted :: Parser a -> Parser a
 quoted = between ('"', '"')
 
 quotedString :: Parser String
-quotedString = quoted $ satisfies (/= '"')
+quotedString = quoted $ parseWhile (/= '"')
 
 parens :: Parser a -> Parser a
 parens = between ('(', ')')
