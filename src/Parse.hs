@@ -34,6 +34,12 @@ sepBy parser sep = do
           parseRest (next:acc) parser sep)
       <|> return acc
 
+many :: Parser a -> Parser [a]
+many parser = do
+  first <- parser
+  rest <- many parser <|> return []
+  return $ first:rest
+
 optional :: Parser a -> Parser ()
 optional parser = (parser >> return ()) <|> return ()
 
