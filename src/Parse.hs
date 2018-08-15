@@ -61,6 +61,9 @@ oneOf chars = do
             return x
     else noParse
 
+alphanum :: Parser String
+alphanum = parseWhile Char.isAlphaNum
+
 whitespace :: Parser ()
 whitespace = parseWhile (flip elem ['\t', '\n', ' ']) >> return ()
 
